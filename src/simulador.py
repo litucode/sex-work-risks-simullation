@@ -110,19 +110,33 @@ class SimuladorEpidemiologico:
         self._actualizar_estadisticas()
 
     def _prob_transmision(self, pat: str, mujer: Mujer, sin_condon: bool, es_facial: bool) -> float:
-        probs_base = {'VIH': 0.001, 'Clamidia': 0.35, 'Gonorrea': 0.30, 'Sífilis': 0.27, 'Herpes': 0.16}
+        """Probabilidad calibrada según literatura"""
+        probs_base = {
+            'VIH': self.params.p_vih,
+            'Clamidia': self.params.p_clamidia,
+            'Gonorrea': self.params.p_gonorrea,
+            'Sífilis': self.params.p_sifilis,
+            'Herpes': self.params.p_herpes
+        }
         p = probs_base[pat]
 
-        if 1 <= mujer.ciclo_dia <= 5:
+        # Factores biológicos
+        if 1 <= mujer.ciclo_dia <= 5:                    # Menstruación
             p *= self.params.mult_menstruacion
-        if sum(mujer.infectado.values()) > 0:
+        if sum(mujer.infectado.values()) > 0:           # Coinfección
             p *= self.params.mult_coinfeccion
-        if pat == 'VIH' and mujer.en_prep:
+
+        # PrEP (solo VIH)
+        if pat == 'VIH' and mujer.en_prep and random.random() < self.params.adherencia_prep:
             p *= self.params.mult_prep
+
+        # Práctica de alto riesgo
         if es_facial and pat in ['Clamidia', 'Gonorrea', 'Sífilis']:
-            p *= 1.65
+            p *= self.params.multiplicador_riesgo_facial
+
+        # Condón
         if not sin_condon:
-            p *= 0.10
+            p *= (1 - self.params.eficacia_condon)
 
         return max(0.0, min(1.0, p))
 

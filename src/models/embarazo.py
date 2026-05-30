@@ -9,18 +9,20 @@ class EmbarazoManager:
     decision_continuar_embarazo: float = 0.68   # Influida por situación económica
 
     def intentar_embarazo(self, mujer, sin_condon: bool, es_facial: bool, balance_economico: float) -> bool:
-        """Intenta embarazo y devuelve si se produjo uno que continuó"""
         if not sin_condon:
-            return False  # Con condón el riesgo es muy bajo
+            return False
 
-        # Mayor riesgo si eyaculación facial o acto de alto riesgo
+        # Mayor probabilidad en fase ovulatoria aproximada
         prob = self.prob_embarazo_base
+        if 12 <= mujer.ciclo_dia <= 16:   # Ventana fértil aproximada
+            prob *= 2.2
+
         if es_facial:
-            prob *= 1.25
+            prob *= 1.2
 
         if random.random() < prob:
-            # Decisión de continuar el embarazo (presión económica)
-            factor_economico = max(0.4, 1.0 - (balance_economico / 1000))  # Más deuda = más probable continuar
-            if random.random() < self.decision_continuar_embarazo * factor_economico:
-                return True  # Embarazo que continúa
+            # Presión económica influye en continuar el embarazo
+            factor_pobreza = max(0.45, 1.0 - (balance_economico / -800))  # Más deuda = más probable continuar
+            if random.random() < self.decision_continuar_embarazo * factor_pobreza:
+                return True
         return False

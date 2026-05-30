@@ -2,39 +2,49 @@ from dataclasses import dataclass
 
 @dataclass
 class EconomiaMujer:
-    """Gestión económica individual de cada mujer"""
+    """Gestión económica individual según tipo de trabajo"""
+    tipo_trabajo: str = "callejera"
     ingresos_acumulados: float = 0.0
     deuda: float = 0.0
-    pension_mensual: float = 45.0      # Francos históricos
-    costo_vida_base: float = 120.0     # Costo mensual base
-    costo_por_hijo: float = 28.0
+    alquiler: float = 0.0
+    comida: float = 0.0
+    belleza: float = 0.0
+    costo_hijos: float = 0.0
 
-    def calcular_gastos_mensuales(self, inflacion: float = 1.0, num_hijos: int = 0) -> float:
-        """Gastos totales ajustados por inflación"""
-        return (self.costo_vida_base * inflacion) + (num_hijos * self.costo_por_hijo)
+    def __post_init__(self):
+        if self.tipo_trabajo == "callejera":
+            self.alquiler = 85
+            self.comida = 110
+            self.belleza = 25
+            self.costo_hijos = 32
+        else:  # VIP
+            self.alquiler = 220
+            self.comida = 95
+            self.belleza = 95
+            self.costo_hijos = 45
+
+    def gastos_mensuales(self, inflacion: float = 1.0, num_hijos: int = 0) -> float:
+        return (self.alquiler + self.comida + self.belleza) * inflacion + (num_hijos * self.costo_hijos)
 
     def balance_mensual(self, ingresos_mes: float, inflacion: float = 1.0, num_hijos: int = 0) -> float:
-        """Calcula balance mensual"""
-        gastos = self.calcular_gastos_mensuales(inflacion, num_hijos)
-        interes_deuda = self.deuda * 0.02
-        return ingresos_mes - gastos - interes_deuda
+        gastos = self.gastos_mensuales(inflacion, num_hijos)
+        return ingresos_mes - gastos - (self.deuda * 0.025)
 
 
 class EntornoEconomico:
-    """Maneja inflación y contexto histórico"""
+    """Manejo de inflación y contexto histórico"""
     def __init__(self, ano_base: int = 1910):
         self.ano = ano_base
         self.indice_inflacion = 1.0
 
     def actualizar(self, dias: int):
-        """Simula inflación histórica Francia"""
         self.ano += dias // 365
-        if 1914 <= self.ano <= 1925:      # Post Primera Guerra
+        if 1914 <= self.ano <= 1925:      # Post WWI
             self.indice_inflacion *= 1.085
-        elif 1939 <= self.ano <= 1950:    # Post Segunda Guerra
+        elif 1939 <= self.ano <= 1950:    # Post WWII
             self.indice_inflacion *= 1.065
         else:
-            self.indice_inflacion *= 1.018   # Inflación moderada
+            self.indice_inflacion *= 1.018
 
     def get_inflacion(self) -> float:
         return self.indice_inflacion
