@@ -93,7 +93,7 @@ Los resultados son simulaciones y deben interpretarse con cautela. No sustituyen
 
 El desarrollo completo de este modelo se discutió paso a paso en el siguiente hilo:
 
-→ **[Discusión y desarrollo detallado del modelo](https://dummy-link-al-hilo.com)**
+→ **[Discusión y desarrollo detallado del modelo](https://grok.com/share/bGVnYWN5LWNvcHk_272ad376-4bbb-4152-89f8-077eefca34c2)**
 
 *(Reemplaza este enlace con el link real del hilo cuando lo compartas)*
 
